@@ -1,0 +1,52 @@
+import streamlit as st
+import tempfile
+import cv2
+from PIL import Image
+#for vidio on webb slebew
+#st.title("this is thinker belle!!")
+#x=open('thinkerbellevid.mp4','rb')
+#vi=x.read()
+#st.video(vi)
+
+def save_frame_from_video(video_path, frame_number, output_path):
+    cap = cv2.VideoCapture(video_path)
+    cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
+    ret, frame = cap.read()
+    if ret:
+        cv2.imwrite(output_path, frame)
+    cap.release()
+
+#from PIL import Image
+#img = Image.open('thinkerbellepict.jpg')
+#st.image(img)
+uploaded_video = st.file_uploader("Upload vidio thinkerbelle nyaa", type=["mp4", "mov", "avi"])
+
+if uploaded_video is not None:
+    # Save uploaded video to a temporary file
+    with tempfile.NamedTemporaryFile(delete=False) as tfile:
+        tfile.write(uploaded_video.read())
+        video_path = tfile.name
+    
+    # Display uploaded video
+    st.video(uploaded_video)
+
+    # Total frames and duration of the video
+    cap = cv2.VideoCapture(video_path)
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    duration = total_frames / fps
+    st.write(f'jumlah semua frame dlm 1 vidio: {total_frames}')
+    st.write(f'FPS: {fps}')
+    st.write(f'durasi: {duration:.2f} detik')
+
+    # Input to select frame number
+    frame_number = st.number_input("Frame ke berapa untuk di extract", min_value=0, max_value=total_frames-1, step=1)
+
+    if st.button('Extract Frame'):
+        output_path = f"frame_{frame_number}.jpg"
+        save_frame_from_video(video_path, frame_number, output_path)
+        st.success(f'Frame {frame_number} extracted and saved as {output_path}')
+
+        # Display extracted frame as image
+        img = Image.open(output_path)
+        st.image(img, caption=f'Extracted Frame {frame_number}', use_column_width=True)
