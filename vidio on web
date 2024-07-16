@@ -1,0 +1,7 @@
+import streamlit as st
+
+
+st.title("ini coba coba")
+x=open('thinkerbellevid.mp4','rb')
+vi=x.read()
+st.video(vi)
